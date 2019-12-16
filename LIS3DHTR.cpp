@@ -51,6 +51,12 @@ void LIS3DHTR<T>::begin(T &wire, uint8_t address)
     _Wire->begin();
     devAddr = address;
     
+    uint8_t config5=LIS3DHTR_REG_TEMP_ADC_PD_ENABLED    |
+                    LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED;
+                    
+    writeRegister(LIS3DHTR_REG_TEMP_CFG, config5);
+    delay(LIS3DHTR_CONVERSIONDELAY);
+
     uint8_t config1 =   LIS3DHTR_REG_ACCEL_CTRL_REG1_LPEN_NORMAL        |   // Normal Mode
                         LIS3DHTR_REG_ACCEL_CTRL_REG1_AZEN_ENABLE        |   // Acceleration Z-Axis Enabled
                         LIS3DHTR_REG_ACCEL_CTRL_REG1_AYEN_ENABLE        |   // Acceleration Y-Axis Enabled
@@ -72,11 +78,7 @@ void LIS3DHTR<T>::begin(T &wire, uint8_t address)
     delay(LIS3DHTR_CONVERSIONDELAY);
     // Serial.print("address:0x23, config4:");
     // Serial.println(config4);
-    uint8_t config5=LIS3DHTR_REG_TEMP_ADC_PD_ENABLED    |
-                    LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED;
-                    
-    writeRegister(LIS3DHTR_REG_TEMP_CFG, config5);
-    delay(LIS3DHTR_CONVERSIONDELAY);
+
 
     setFullScaleRange(LIS3DHTR_RANGE_16G);
     setOutputDataRate(LIS3DHTR_DATARATE_1HZ);
@@ -137,7 +139,7 @@ void LIS3DHTR<T>::begin(uint8_t sspin)
 
 }
 template<class T>
-bool LIS3DHTR<T>::openTemp()
+void LIS3DHTR<T>::openTemp()
 {
     uint8_t config5=LIS3DHTR_REG_TEMP_ADC_PD_ENABLED    |
                     LIS3DHTR_REG_TEMP_TEMP_EN_ENABLED;
@@ -145,8 +147,9 @@ bool LIS3DHTR<T>::openTemp()
     writeRegister(LIS3DHTR_REG_TEMP_CFG, config5);
     delay(LIS3DHTR_CONVERSIONDELAY);
 }
+
 template<class T>
-bool LIS3DHTR<T>::closeTemp()
+void LIS3DHTR<T>::closeTemp()
 {
     uint8_t config5=LIS3DHTR_REG_TEMP_ADC_PD_ENABLED    |
                     LIS3DHTR_REG_TEMP_TEMP_EN_DISABLED;
@@ -154,14 +157,17 @@ bool LIS3DHTR<T>::closeTemp()
     writeRegister(LIS3DHTR_REG_TEMP_CFG, config5);
     delay(LIS3DHTR_CONVERSIONDELAY);
 }
+
 template<class T>
 int16_t LIS3DHTR<T>::getTemperature(void)
 {
-	uint8_t temp;
-    temp=readRegister(0x0C);
-    
-	return uintTemp>>6;
+
+    int16_t result = ((int16_t) readRegisterInt16(0x0c)) / 256;
+    Serial.print("temp::");
+    Serial.println(result);
+	return result+25;
 }
+
 template<class T>
 bool LIS3DHTR<T>::isConnection(void)
 {
@@ -363,6 +369,7 @@ uint16_t LIS3DHTR<T>::readbitADC2( void )
 	uintTemp = intTemp + 32768;
 	return uintTemp>>6;
 }
+
 template<class T>
 uint16_t LIS3DHTR<T>::readbitADC3( void )
 {
@@ -427,17 +434,19 @@ void LIS3DHTR<T>::readRegisterRegion(uint8_t *outputPointer , uint8_t reg, uint8
 		break;
 	case SPI_MODE:
 		digitalWrite(chipSelectPin, LOW);
-		SPI.transfer(reg | 0x80);  //Ored with "read request" bit and "auto increment" bit
-		Serial.print("c:");
+		SPI.transfer(reg | 0x80 | 0x40);  //Ored with "read request" bit and "auto increment" bit
+        Serial.println();
+        // Serial.print("c:");
         while ( i < length ) // slave may send less than requested
 		{
 			c = SPI.transfer(0x00); // receive a byte as character
-            Serial.print(c);
+            // Serial.print(c);
+            // Serial.print("-");
 			*outputPointer = c;
 			outputPointer++;
 			i++;
 		}
-        Serial.println();
+        // Serial.println();
 		digitalWrite(chipSelectPin, HIGH);
 		break;
 	default:
@@ -451,7 +460,8 @@ uint16_t LIS3DHTR<T>::readRegisterInt16(uint8_t reg )
 	{
 		uint8_t myBuffer[2];
 		readRegisterRegion(myBuffer, reg, 2); 
-		int16_t output = (int16_t)myBuffer[0] | int16_t(myBuffer[1] << 8);
+		uint16_t output = myBuffer[0] | uint16_t(myBuffer[1] << 8);
+        
 		return output;
 	}
 
@@ -474,9 +484,11 @@ uint8_t LIS3DHTR<T>::readRegister(uint8_t reg){
 		break;
 	case SPI_MODE:
 		digitalWrite(chipSelectPin, LOW);
-		SPI.transfer(reg | 0x80 | 0x40);  
+		SPI.transfer(reg | 0x80);  
 		result = SPI.transfer(0x00);
 		digitalWrite(chipSelectPin, HIGH);
+        // Serial.print("read:");
+        // Serial.println(result);
 		break;
 	default:
 		break;

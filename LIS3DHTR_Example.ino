@@ -8,7 +8,8 @@
   #define WIRE myWire
 #else   
   #include <Wire.h>
-  LIS3DHTR<TwoWire> LIS(0);
+  // LIS3DHTR<TwoWire> LIS(0);//I2C
+  LIS3DHTR<TwoWire> LIS(1);//SPI
    #define WIRE Wire
 #endif
 
@@ -17,13 +18,15 @@ void setup()
 {
   Serial.begin(115200);
   while(!Serial){};
-  LIS.begin(WIRE,0x19);
-  // LIS.begin(10);
+  // LIS.begin(WIRE,0x19);
+  LIS.begin(10);
+  LIS.openTemp();
+  delay(100);
+
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_2G);
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_4G);
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_8G);
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_16G);
-
   //LIS.setOutputDataRate(LIS3DHTR_DATARATE_1HZ);
   //LIS.setOutputDataRate(LIS3DHTR_DATARATE_10HZ);
   // LIS.setOutputDataRate(LIS3DHTR_DATARATE_25HZ);
@@ -40,11 +43,15 @@ void loop()
     while(1);
     return;
   }
-  Serial.print("x:");Serial.print(LIS.getAccelerationX());Serial.print("  ");
-  Serial.print("y:");Serial.print(LIS.getAccelerationY());Serial.print("  ");
-  Serial.print("z:");Serial.println(LIS.getAccelerationZ());
-  Serial.print("adc1:");Serial.println(LIS.readbitADC1());
-  Serial.print("adc2:");Serial.println(LIS.readbitADC2());
-  Serial.print("adc3:");Serial.println(LIS.readbitADC3());
+  // LIS.openTemp();
+  // Serial.print("x:");Serial.print(LIS.getAccelerationX());Serial.print("  ");
+  // Serial.print("y:");Serial.print(LIS.getAccelerationY());Serial.print("  ");
+  // Serial.print("z:");Serial.println(LIS.getAccelerationZ());
+  // Serial.print("adc1:");Serial.println(LIS.readbitADC1());
+  // Serial.print("adc2:");Serial.println(LIS.readbitADC2());
+  // Serial.print("adc3:");Serial.println(LIS.readbitADC3());
+  // Serial.print("adc3/3:");Serial.println(LIS.readbitADC3()/3);
+  
+  Serial.print("temp:");Serial.println(LIS.getTemperature());
   delay(1000);
 }
