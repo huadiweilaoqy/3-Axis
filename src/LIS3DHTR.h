@@ -208,7 +208,7 @@ class LIS3DHTR
 
         bool isConnection(void);
 
-        void begin(T &wire = Wire, uint8_t address = LIS3DHTR_DEFAULT_ADDRESS);//初始化
+        void begin(T &wire = Wire, uint8_t address = LIS3DHTR_ADDRESS_UPDATED);//初始化
 
         void begin(uint8_t sspin);
 
