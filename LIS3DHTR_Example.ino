@@ -8,8 +8,8 @@
   #define WIRE myWire
 #else   
   #include <Wire.h>
-  // LIS3DHTR<TwoWire> LIS(0);//I2C
-  LIS3DHTR<TwoWire> LIS(1);//SPI
+  LIS3DHTR<TwoWire> LIS(0);//I2C
+  // LIS3DHTR<TwoWire> LIS(1);//SPI
    #define WIRE Wire
 #endif
 
@@ -18,12 +18,13 @@ void setup()
 {
   Serial.begin(115200);
   while(!Serial){};
-  // LIS.begin(WIRE,0x19);
-  LIS.begin(10);
+  LIS.begin(WIRE,0x19);
+  // LIS.begin(10);
   LIS.openTemp();
+  // LIS.closeTemp();
   delay(100);
 
-  //LIS.setFullScaleRange(LIS3DHTR_RANGE_2G);
+  LIS.setFullScaleRange(LIS3DHTR_RANGE_2G);
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_4G);
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_8G);
   //LIS.setFullScaleRange(LIS3DHTR_RANGE_16G);
@@ -34,7 +35,7 @@ void setup()
   //LIS.setOutputDataRate(LIS3DHTR_DATARATE_100HZ);
   // LIS.setOutputDataRate(LIS3DHTR_DATARATE_200HZ);
   //LIS.setOutputDataRate(LIS3DHTR_DATARATE_1_6KHZ);
-  //LIS.setOutputDataRate(LIS3DHTR_DATARATE_5KHZ);
+  // LIS.setOutputDataRate(LIS3DHTR_DATARATE_5KHZ);
 }
 void loop()
 {

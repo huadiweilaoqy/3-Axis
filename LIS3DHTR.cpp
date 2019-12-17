@@ -93,7 +93,7 @@ void LIS3DHTR<T>::begin(uint8_t sspin)
 	digitalWrite(chipSelectPin, HIGH);
     SPI.begin();
     // start the SPI library:
-	SPI.begin();
+	// SPI.begin();
 	// Maximum SPI frequency is 10MHz, could divide by 2 here:
 	SPI.setClockDivider(SPI_CLOCK_DIV4);
 	// Data is read and written MSb first.
@@ -163,9 +163,15 @@ int16_t LIS3DHTR<T>::getTemperature(void)
 {
 
     int16_t result = ((int16_t) readRegisterInt16(0x0c)) / 256;
-    Serial.print("temp::");
-    Serial.println(result);
-	return result+25;
+
+    // Serial.print("temp::");
+    // Serial.println(result);
+    if(commInterface==I2C_MODE){
+        return result+25; 
+    }else if(commInterface==SPI_MODE){
+        return result+20;
+    }
+	
 }
 
 template<class T>
@@ -383,8 +389,14 @@ uint16_t LIS3DHTR<T>::readbitADC3( void )
     // Serial.print("adc3_h:");
     // Serial.println(adc3_h);
     intTemp=(int16_t)(adc3_h<<8)|adc3_l;
+    // Serial.print("ceshi adc3 1:");
+    // Serial.println(intTemp);
 	intTemp = 0 - intTemp;
+    // Serial.print("ceshi adc3 2(0-adc3):");
+    // Serial.println(intTemp);
 	uintTemp = intTemp + 32768;
+    // Serial.print("ceshi adc3 3(inttemp +32768):");
+    // Serial.println(uintTemp);
 	return uintTemp>>6;
 }
 
@@ -424,19 +436,28 @@ void LIS3DHTR<T>::readRegisterRegion(uint8_t *outputPointer , uint8_t reg, uint8
 		_Wire->write(reg);
 		_Wire->endTransmission();
 		_Wire->requestFrom(devAddr, length);
+
+        // Serial.println();
+        // Serial.print("data:");
+
 		while ( (_Wire->available()) && (i < length))  // slave may send less than requested
 		{
 			c = _Wire->read(); // receive a byte as character
+
+            // Serial.print(c);
+            // Serial.print("-");
+
 			*outputPointer = c;
 			outputPointer++;
 			i++;
 		}
+        //  Serial.println();
 		break;
 	case SPI_MODE:
 		digitalWrite(chipSelectPin, LOW);
 		SPI.transfer(reg | 0x80 | 0x40);  //Ored with "read request" bit and "auto increment" bit
-        Serial.println();
-        // Serial.print("c:");
+        // Serial.println();
+        // Serial.print("data:");
         while ( i < length ) // slave may send less than requested
 		{
 			c = SPI.transfer(0x00); // receive a byte as character
@@ -480,6 +501,8 @@ uint8_t LIS3DHTR<T>::readRegister(uint8_t reg){
         while(_Wire->available())
         {
             result = _Wire->read();
+            // Serial.print("IIC READ:");
+            // Serial.println(result);
         }
 		break;
 	case SPI_MODE:
