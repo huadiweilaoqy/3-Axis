@@ -89,8 +89,8 @@ void LIS3DHTR<T>::begin(uint8_t sspin)
     chipSelectPin = sspin;
     pinMode(chipSelectPin, OUTPUT);
 	digitalWrite(chipSelectPin, HIGH);
-    SPI.begin();
     // start the SPI library:
+    SPI.begin();
 	// Maximum SPI frequency is 10MHz, could divide by 2 here:
 	SPI.setClockDivider(SPI_CLOCK_DIV4);
 	// Data is read and written MSb first.
@@ -119,7 +119,7 @@ void LIS3DHTR<T>::begin(uint8_t sspin)
 
     uint8_t config4 =   LIS3DHTR_REG_ACCEL_CTRL_REG4_BDU_NOTUPDATED     |   // Continuous Update
                         LIS3DHTR_REG_ACCEL_CTRL_REG4_BLE_LSB            |   // Data LSB @ lower address
-                        LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_DISABLE         |   // High Resolution Disable
+                        LIS3DHTR_REG_ACCEL_CTRL_REG4_HS_ENABLE         |   // High Resolution Disable
                         LIS3DHTR_REG_ACCEL_CTRL_REG4_ST_NORMAL          |   // Normal Mode
                         LIS3DHTR_REG_ACCEL_CTRL_REG4_SIM_4WIRE;             // 4-Wire Interface
 
@@ -131,6 +131,34 @@ void LIS3DHTR<T>::begin(uint8_t sspin)
     setOutputDataRate(LIS3DHTR_DATARATE_1HZ);
 
 }
+template<class T>
+void LIS3DHTR<T>::open3Axis()
+{
+    uint8_t data = 0;
+    
+    data = readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1);
+    
+    data &= ~0x07;
+    data |=  0x07;
+
+    writeRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1, data);
+    delay(LIS3DHTR_CONVERSIONDELAY);
+
+}
+template<class T>
+void LIS3DHTR<T>::close3Axis()
+{
+    uint8_t data = 0;
+    
+    data = readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1);
+    
+    data &= ~0x07;
+    data |=  0;
+
+    writeRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1, data);
+    delay(LIS3DHTR_CONVERSIONDELAY);
+}
+
 template<class T>
 void LIS3DHTR<T>::openTemp()
 {
@@ -226,6 +254,7 @@ void LIS3DHTR<T>::setFullScaleRange(scale_type_t range)
     }
 
 }
+
 
 template<class T>
 void LIS3DHTR<T>::setOutputDataRate(odr_type_t odr)

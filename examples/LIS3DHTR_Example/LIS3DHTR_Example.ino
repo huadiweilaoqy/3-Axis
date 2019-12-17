@@ -9,17 +9,18 @@ LIS3DHTR<SoftwareWire> LIS(0);
 #else
 #include <Wire.h>
 //  LIS3DHTR<TwoWire> LIS(0);//I2C
-LIS3DHTR<TwoWire> LIS(1);//SPI
+LIS3DHTR<TwoWire> LIS(1); //SPI
 #define WIRE Wire
 #endif
-
 
 void setup()
 {
   Serial.begin(115200);
-  while (!Serial) {};
-  //  LIS.begin(WIRE, 0x19); //IIC address
-  LIS.begin(10);          //SPI SS
+  while (!Serial)
+  {
+  };
+  // LIS.begin(WIRE, 0x19); //IIC address
+  LIS.begin(10); //SPI SS
   //  LIS.openTemp();
   //  LIS.closeTemp();//default
   delay(100);
@@ -30,7 +31,7 @@ void setup()
   //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_1HZ);
   //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_10HZ);
   //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_25HZ);
-  //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_50HZ);
+  LIS.setOutputDataRate(LIS3DHTR_DATARATE_50HZ);
   //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_100HZ);
   //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_200HZ);
   //  LIS.setOutputDataRate(LIS3DHTR_DATARATE_1_6KHZ);
@@ -38,19 +39,21 @@ void setup()
 }
 void loop()
 {
-  if (!LIS) {
+  if (!LIS)
+  {
     Serial.println("LIS3DHTR didn't connect.");
-    while (1);
+    while (1)
+      ;
     return;
   }
-  Serial.print("x:"); Serial.print(LIS.getAccelerationX()); Serial.print("  ");
-  Serial.print("y:"); Serial.print(LIS.getAccelerationY()); Serial.print("  ");
-  Serial.print("z:"); Serial.println(LIS.getAccelerationZ());
+  Serial.print("x:");Serial.print(LIS.getAccelerationX());Serial.print("  ");
+  Serial.print("y:");Serial.print(LIS.getAccelerationY());Serial.print("  ");
+  Serial.print("z:");Serial.println(LIS.getAccelerationZ());
 
-//  Serial.print("adc1:"); Serial.println(LIS.readbitADC1());
-//  Serial.print("adc2:"); Serial.println(LIS.readbitADC2());
-//  Serial.print("adc3:"); Serial.println(LIS.readbitADC3());
+  //  Serial.print("adc1:"); Serial.println(LIS.readbitADC1());
+  //  Serial.print("adc2:"); Serial.println(LIS.readbitADC2());
+  //  Serial.print("adc3:"); Serial.println(LIS.readbitADC3());
 
-//  Serial.print("temp:"); Serial.println(LIS.getTemperature());
+  //  Serial.print("temp:"); Serial.println(LIS.getTemperature());
   delay(500);
 }
