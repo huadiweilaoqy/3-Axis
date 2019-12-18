@@ -225,8 +225,6 @@ class LIS3DHTR
         void openTemp();
         void closeTemp();
 
-        void close3Axis();
-        void open3Axis();
         uint16_t readbitADC1(void);
         uint16_t readbitADC2(void);
         uint16_t readbitADC3(void);

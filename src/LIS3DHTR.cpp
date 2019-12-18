@@ -131,33 +131,7 @@ void LIS3DHTR<T>::begin(uint8_t sspin)
     setOutputDataRate(LIS3DHTR_DATARATE_1HZ);
 
 }
-template<class T>
-void LIS3DHTR<T>::open3Axis()
-{
-    uint8_t data = 0;
-    
-    data = readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1);
-    
-    data &= ~0x07;
-    data |=  0x07;
 
-    writeRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1, data);
-    delay(LIS3DHTR_CONVERSIONDELAY);
-
-}
-template<class T>
-void LIS3DHTR<T>::close3Axis()
-{
-    uint8_t data = 0;
-    
-    data = readRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1);
-    
-    data &= ~0x07;
-    data |=  0;
-
-    writeRegister(LIS3DHTR_REG_ACCEL_CTRL_REG1, data);
-    delay(LIS3DHTR_CONVERSIONDELAY);
-}
 
 template<class T>
 void LIS3DHTR<T>::openTemp()
